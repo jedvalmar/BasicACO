@@ -30,17 +30,13 @@ int main(int argc, char const *argv[])
  graph_t  get_distance_matrix()
  {    
     FILE * positions;
-    char * name;
     int number_of_elements;
 
-    positions = fopen("positionsArchive.txt","r");
-    
-    fscanf(positions, "%s",name);
+    positions = fopen("positions.txt","r");
 
     fscanf(positions,"%d",&number_of_elements);
 
     #ifdef VERBOSE
-    puts(name);
     printf("%d\n", number_of_elements);
     #endif
 
