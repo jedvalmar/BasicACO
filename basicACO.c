@@ -34,6 +34,7 @@ int main(int argc, char const *argv[])
     }
     #endif
 
+    free(instance.matrix);
     return 0;
 }
 
