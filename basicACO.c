@@ -13,7 +13,7 @@ graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph);
 float calc_prob(int ant, float * array_of_prob, int elements, int * eval_array, int * graph);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
-
+void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
 
 int main(int argc, char const *argv[])
 {
@@ -34,8 +34,15 @@ int main(int argc, char const *argv[])
     }
     #endif
 
+
+
     free(instance.matrix);
     return 0;
+}
+
+void initialize_ant_distribution(int * ant_matrix, int number_of_ants)
+{
+
 }
 
  graph_t  get_distance_matrix()
