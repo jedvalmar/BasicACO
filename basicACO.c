@@ -18,10 +18,20 @@ float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int
 int main(int argc, char const *argv[])
 {
     graph_t instance = get_distance_matrix();
+    float *distanceMatrix = instance.matrix;
 
     #ifdef VERBOSE
     printf("%d\n", instance.width);
     printf("%d\n", instance.height);
+    for (int i = 0; i < instance.width; ++i)
+    {
+        for (int j = 0; j < instance.height; ++j)
+        {
+            printf("%f", *distanceMatrix);
+            distanceMatrix++;
+        }
+        printf("\n");
+    }
     #endif
 
     return 0;
@@ -94,8 +104,8 @@ float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int
 {
     float result;
 
-    result = pow(coord_a_x - coord_b_x, 2);
-    result = result + pow (coord_a_y - coord_b_y , 2);
+    result = pow((coord_a_x - coord_b_x), 2);
+    result = result + pow ((coord_a_y - coord_b_y) , 2);
     result = sqrt(result);
 
     return result;
