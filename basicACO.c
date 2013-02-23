@@ -27,13 +27,16 @@ int main(int argc, char const *argv[])
     {
         for (int j = 0; j < instance.height; ++j)
         {
-            printf("%f", *distanceMatrix);
+            printf(" %.2f ", *distanceMatrix);
             distanceMatrix++;
         }
         printf("\n");
     }
     #endif
 
+    //int ant_matrix[instance.width * instance.height] = {0};
+
+    //initialize_ant_distribution(ant_matrix, instance.width);
 
 
     free(instance.matrix);
@@ -42,7 +45,16 @@ int main(int argc, char const *argv[])
 
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants)
 {
-
+    int cont = 0;
+    while(cont < number_of_ants){
+        int * begining = ant_matrix;
+        int random_city = random(number_of_ants) + 1;
+        for (int i = 0; i < count; ++i)
+        {
+            /* code */
+        }
+    }
+    
 }
 
  graph_t  get_distance_matrix()
