@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <time.h>
 #define VERBOSE
 
 typedef struct {
@@ -34,10 +35,22 @@ int main(int argc, char const *argv[])
     }
     #endif
 
-    //int ant_matrix[instance.width * instance.height] = {0};
+    int * ant_matrix = (int *)malloc( sizeof(int) * (instance.width * instance.height));
+    int * matrix_pointer = ant_matrix;
+     for (int i = 0; i < instance.width; ++i)
+    {
+        for (int j = 0; j < instance.height; ++j)
+        {
+            *matrix_pointer = 0;
+            matrix_pointer++;
+        }
+    }
+    initialize_ant_distribution(ant_matrix, instance.width);
 
-    //initialize_ant_distribution(ant_matrix, instance.width);
-
+    for (int i = 0; i < instance.width; ++i)
+    {
+        printf("%d\n",ant_matrix[i]);
+    }
 
     free(instance.matrix);
     return 0;
@@ -45,13 +58,29 @@ int main(int argc, char const *argv[])
 
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants)
 {
+    int random_city;
     int cont = 0;
     while(cont < number_of_ants){
         int * begining = ant_matrix;
-        int random_city = random(number_of_ants) + 1;
-        for (int i = 0; i < count; ++i)
+
+        for (int i = 0; i < number_of_ants ; i++)
         {
-            /* code */
+            srand(time(0));
+            random_city = (rand() % number_of_ants) + 1;
+
+            if (*begining == random_city){
+
+                break;
+
+            } else if (*begining == 0) {
+                printf("random_city = %d\n", random_city);
+
+                *begining = random_city;
+                cont ++;
+                break;
+
+            }
+            begining++;
         }
     }
     
