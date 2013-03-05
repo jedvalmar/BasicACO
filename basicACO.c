@@ -18,7 +18,8 @@ void initialize_feromone(float * incomplete_graph, float * originalGraph, int nu
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
-void choose_city(int currentCity,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta);
+void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
+float rand_FloatRange(float a, float b);
 
 int main(int argc, char const *argv[])
 {
@@ -83,6 +84,15 @@ int main(int argc, char const *argv[])
     // TODO : implement probability function within a cycle
 
     calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
+
+    // TODO : delete this when path its actually being iterated by its paths
+    printf("path taken by first ant\n");
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        printf("%d ", ant_travel_current_path[i]);
+    }
+
+    printf("\n");
 
     free(feromone_matrix);
     free(instance.matrix);
@@ -216,7 +226,7 @@ void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float *
         eval_path = &graph[currentCity * number_of_ants];
         feromone_path = &feromone_matrix[currentCity * number_of_ants];
 
-        choose_city(currentCity, ant_city_travel, eval_path, visitedCities, feromone_path, alpha, beta);
+        choose_city(number_of_ants, ant_city_travel, eval_path, visitedCities, feromone_path, alpha, beta , i+1);
     }
 
 
@@ -228,10 +238,102 @@ void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float *
 
 // here is the bussiness
 
-void choose_city(int currentCity,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta){
+void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity){
+    printf("\n");
+    int citiesAvailable;
+    float denominator = 0;
+    float inverse = 0;
+    float  * desicionVector = (float *) malloc(sizeof(float) * number_of_ants);
+    int * cityIndex = (int *)malloc(sizeof(int) * number_of_ants);
+    int cont = 0;
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        if (visitedCities[i] == 0 && path[i]!=0)
+        {
+            inverse = 1/path[i];
+            denominator += (pow(feromone_path[i] , alpha) * pow(inverse, beta)); 
+            cont++;
+        }
+        desicionVector[i] = 0;
+        cityIndex[i] = i;
+    }
+
+    
+    float probability = 0;
+
+    for (int i = 0; i < number_of_ants ; ++i)
+    {
+         if (visitedCities[i] == 0 && path[i]!=0)
+        {
+            inverse = 1/path[i];
+            probability = (  (pow(feromone_path[i] , alpha)  *  pow(inverse, beta))  ) / denominator;
+            desicionVector[i] = probability;
+
+        }
+    }
+
+
+    //sort
+    float temp;
+    int citytemp;
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        for (int j = i+1; j < number_of_ants; ++j)
+        {
+            if (desicionVector[j] > desicionVector[i])
+            {
+               temp = desicionVector[i];
+               desicionVector[i] = desicionVector[j];
+               desicionVector[j] = temp;
+               citytemp = cityIndex[i];
+               cityIndex[i] = cityIndex[j];
+               cityIndex[j] = citytemp;
+
+            }
+        }
+    }
+
+    // printing desicion vector
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        printf("%.3f ", desicionVector[i] );
+    }
+    printf("\n");
+
+
+    //printing visitedCities
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        printf("%d ", visitedCities[i]);
+    }
+    printf("\n");
+
+    float random_city;
+    random_city = rand_FloatRange(0, 1);
+    printf("%f\n",random_city );
+
+    float acumulator = 0;
+    for (int i = 0; i < number_of_ants; ++i)
+    {
+        acumulator += desicionVector[i];
+        if (acumulator >= random_city)
+        {
+            printf("%.3f if greater than %.3f, at city %d (%d)\n ", acumulator,random_city, cityIndex[i],i);
+            ant_city_travel[nextCity] = cityIndex[i];
+            break;
+        }
+        
+    }
 
 
 
+    free(desicionVector);
+
+}
+
+float rand_FloatRange(float a, float b)
+{
+    return ((b-a)*((float)rand()/RAND_MAX))+a;
 }
 
 
