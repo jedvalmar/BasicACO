@@ -17,7 +17,8 @@ graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph, float * originalGraph, int number_of_ants);
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
-void update_feromone();
+void update_feromone(int * path_taken, float * feromone_matrix);
+float calculate_total_distance(int * a_path, float * distanceMatrix);
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
 void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
 float rand_FloatRange(float a, float b);
@@ -57,6 +58,7 @@ int main(int argc, char const *argv[])
             matrix_pointer++;
         }
     }
+
     initialize_ant_distribution(ant_matrix, instance.width);
 
     int counter = 0;
@@ -81,18 +83,19 @@ int main(int argc, char const *argv[])
 
     initialize_feromone(pointerToFeromoneMatrix, the_distance_matrix, number_of_ants);
 
-    // implement probability function within a cycle
+    // implementing probability function within a cycle
 
     for (int i = 0; i < number_of_ants; ++i)
     {
         ant_travel_current_path = &ant_matrix[i*number_of_ants];
         calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
-        
+        // TODO : measure total distance of brand new ant path
+
+
+        // TODO : update feromone matrix
+
     }
 
-
-
-    
 
     printf("Ant colony path matrix\n");
     int * ant_matrix_iterator = ant_matrix;
@@ -101,10 +104,6 @@ int main(int argc, char const *argv[])
             printf("%d ", *ant_matrix_iterator);
         printf("\n");
     }
-
-
-        
-        
 
 
 
