@@ -17,7 +17,8 @@ graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph, float * originalGraph, int number_of_ants);
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
-void update_feromone();
+void update_feromone(int * path_taken, float * feromone_matrix);
+float calculate_total_distance(int * a_path, float * distanceMatrix, int number_of_cities);
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
 void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
 float rand_FloatRange(float a, float b);
@@ -57,6 +58,7 @@ int main(int argc, char const *argv[])
             matrix_pointer++;
         }
     }
+
     initialize_ant_distribution(ant_matrix, instance.width);
 
     int counter = 0;
@@ -75,24 +77,29 @@ int main(int argc, char const *argv[])
 
     int * ant_travel_current_path;
     int number_of_ants = instance.width;
+    int number_of_cities = instance.width;
     float * the_distance_matrix = instance.matrix;
     float * feromone_matrix = (float *)malloc(sizeof(float) * (number_of_ants * number_of_ants));
+    float * total_distance_list = (float *)malloc(sizeof(float) * (number_of_cities));
     float * pointerToFeromoneMatrix = feromone_matrix;
 
     initialize_feromone(pointerToFeromoneMatrix, the_distance_matrix, number_of_ants);
 
-    // implement probability function within a cycle
+    // implementing probability function within a cycle
 
+    float total_traveled_distance = 0;
     for (int i = 0; i < number_of_ants; ++i)
     {
         ant_travel_current_path = &ant_matrix[i*number_of_ants];
         calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
-        
+        // TODO : measure total distance of brand new ant path
+        total_traveled_distance = calculate_total_distance(ant_travel_current_path, the_distance_matrix, number_of_cities);
+
+        total_distance_list[ant_travel_current_path[0]]= total_traveled_distance;
+        // TODO : update feromone matrix
+
     }
 
-
-
-    
 
     printf("Ant colony path matrix\n");
     int * ant_matrix_iterator = ant_matrix;
@@ -101,12 +108,28 @@ int main(int argc, char const *argv[])
             printf("%d ", *ant_matrix_iterator);
         printf("\n");
     }
+    //just to leave a more readble result
+    printf("\n\n");
 
 
-        
-        
+    float smallest_traveling = total_distance_list[0];
+    int ant_that_got_smallest_travel_path = 0;
+    printf("List of total distance of every ant (ant number is equal to the city when it begins to iterate!)\n");
+    for (int i = 0; i < number_of_cities; ++i)
+    {
+        if (smallest_traveling > total_distance_list[i])
+        {
+            smallest_traveling = total_distance_list[i];
+            ant_that_got_smallest_travel_path = i;
+        }
+        printf("Ant %d : %.2f \n",i, total_distance_list[i]);
 
+    }
 
+    printf("\n");    
+
+    printf("we can say that Ant that begun on city %d got the smallest traveling path, with %.2f\n",
+     ant_that_got_smallest_travel_path, smallest_traveling);
 
     free(feromone_matrix);
     free(instance.matrix);
@@ -127,7 +150,7 @@ void initialize_ant_distribution(int * ant_matrix, int number_of_ants)
     }
     int * begining = ant_matrix;
 
-    while(cont < number_of_ants -1){
+    while(cont < number_of_ants ){
         while(1){
             struct timeval t;
             gettimeofday(&t,NULL);
@@ -348,6 +371,29 @@ void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * v
 float rand_FloatRange(float a, float b)
 {
     return ((b-a)*((float)rand()/RAND_MAX))+a;
+}
+
+
+float calculate_total_distance(int * a_path, float * distanceMatrix, int number_of_cities){
+
+    float totalDistance, currentDistance;
+    int pointA, pointB;
+
+    // using totalDistance var as acumulator
+    totalDistance = 0;
+
+    // calculating distance of point A to point B
+
+    for (int i = 0; i < (number_of_cities - 1); ++i)
+    {
+        pointA = a_path[i];
+        pointB = a_path[i+1];
+        currentDistance = distanceMatrix[pointA * number_of_cities + pointB];
+
+        totalDistance += currentDistance;
+    }
+
+    return totalDistance;
 }
 
 
