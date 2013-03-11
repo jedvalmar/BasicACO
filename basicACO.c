@@ -17,6 +17,7 @@ graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph, float * originalGraph, int number_of_ants);
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
+void update_feromone();
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
 void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
 float rand_FloatRange(float a, float b);
@@ -72,7 +73,7 @@ int main(int argc, char const *argv[])
    
 
 
-    int * ant_travel_current_path = ant_matrix;
+    int * ant_travel_current_path;
     int number_of_ants = instance.width;
     float * the_distance_matrix = instance.matrix;
     float * feromone_matrix = (float *)malloc(sizeof(float) * (number_of_ants * number_of_ants));
@@ -80,19 +81,32 @@ int main(int argc, char const *argv[])
 
     initialize_feromone(pointerToFeromoneMatrix, the_distance_matrix, number_of_ants);
 
-     //testing probability function
-    // TODO : implement probability function within a cycle
+    // implement probability function within a cycle
 
-    calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
-
-    // TODO : delete this when path its actually being iterated by its paths
-    printf("path taken by first ant\n");
     for (int i = 0; i < number_of_ants; ++i)
     {
-        printf("%d ", ant_travel_current_path[i]);
+        ant_travel_current_path = &ant_matrix[i*number_of_ants];
+        calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
+        
     }
 
-    printf("\n");
+
+
+    
+
+    printf("Ant colony path matrix\n");
+    int * ant_matrix_iterator = ant_matrix;
+    for (int i = 0; i < number_of_ants; ++i){
+        for (int j = 0; j < number_of_ants; ++j,++ant_matrix_iterator)
+            printf("%d ", *ant_matrix_iterator);
+        printf("\n");
+    }
+
+
+        
+        
+
+
 
     free(feromone_matrix);
     free(instance.matrix);
