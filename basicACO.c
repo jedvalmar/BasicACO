@@ -17,7 +17,7 @@ graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph, float * originalGraph, int number_of_ants);
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
-void update_feromone(int * path_taken, float * feromone_matrix);
+void update_feromone(int * path_taken, float * feromone_matrix, int number_of_cities);
 float calculate_total_distance(int * a_path, float * distanceMatrix, int number_of_cities);
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
 void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
@@ -97,6 +97,7 @@ int main(int argc, char const *argv[])
 
         total_distance_list[ant_travel_current_path[0]]= total_traveled_distance;
         // TODO : update feromone matrix
+        update_feromone(ant_travel_current_path, feromone_matrix, number_of_cities);
 
     }
 
@@ -110,6 +111,19 @@ int main(int argc, char const *argv[])
     }
     //just to leave a more readble result
     printf("\n\n");
+
+    printf("\n\nFeromone ultimate matrix\n");
+
+    float * feromone_iterator = feromone_matrix;
+    for (int i = 0; i < number_of_ants; ++i){
+        for (int j = 0; j < number_of_ants; ++j,++feromone_iterator)
+            printf("%.1f ", *feromone_iterator);
+        printf("\n");
+    }
+
+     //just to leave a more readble result
+    printf("\n\n");
+
 
 
     float smallest_traveling = total_distance_list[0];
@@ -355,7 +369,7 @@ void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * v
         acumulator += desicionVector[i];
         if (acumulator >= random_city)
         {
-            printf("%.3f if greater than %.3f, at city %d (%d)\n ", acumulator,random_city, cityIndex[i],i);
+            printf("%.3f is greater than %.3f, at city %d (%d)\n ", acumulator,random_city, cityIndex[i],i);
             ant_city_travel[nextCity] = cityIndex[i];
             break;
         }
@@ -416,3 +430,27 @@ void initialize_feromone(float * incomplete_graph, float * originalGraph, int nu
         printf("\n");
     }
 }
+
+
+
+void update_feromone(int * path_taken, float * feromone_matrix, int number_of_cities)
+{
+    int pointA, pointB;
+    float increment;
+    float evaporation_factor;
+
+    increment = 0.005;
+    evaporation_factor = 0.05;
+    for (int i = 0; i < (number_of_cities - 1) ; ++i){
+        pointA = path_taken[i];
+        pointB = path_taken[i+1];
+
+        feromone_matrix[number_of_cities * pointA + pointB] = (feromone_matrix[number_of_cities * pointA + pointB] * (1 - evaporation_factor) ) + increment;
+
+        
+    }
+
+
+
+}
+
