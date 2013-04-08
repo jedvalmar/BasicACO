@@ -25,7 +25,7 @@ void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float *
 float calculateDistanceBetween(int coord_a_x , int coord_a_y, int coord_b_x, int coord_b_y);
 void update_feromone(int * path_taken, float * feromone_matrix, int number_of_cities);
 float calculate_total_distance(int * a_path, float * distanceMatrix, int number_of_cities);
-void initialize_ant_distribution(int * ant_matrix, int number_of_ants);
+void initialize_ant_distribution(int * ant_matrix, int number_of_ants, int number_of_cities);
 void choose_city(int number_of_ants,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, int alpha, int beta, int nextCity);
 float rand_FloatRange(float a, float b);
 
@@ -55,62 +55,49 @@ int main(int argc, char const *argv[])
          agents[i].beta = beta;
     }
 
-    printf("Some ant has alpha value : %d\n",agents[0].alpha);
-
     int originalNumber = iterations;
 
-    while(iterations >= 0){
+    // reading the distance matrix
+    graph_t instance = get_distance_matrix();
+
+    // initializing crucial variables
+    float *distanceMatrix = instance.matrix;
+    int number_of_cities = instance.width;
 
 
-    
-        graph_t instance = get_distance_matrix();
-        float *distanceMatrix = instance.matrix;
+    // iteration cycle
+    while(iterations > 0){
 
-        #ifdef VERBOSE
-        printf("%d\n", instance.width);
-        printf("%d\n", instance.height);
-        for (int i = 0; i < instance.width; ++i)
-        {
-            for (int j = 0; j < instance.height; ++j)
-            {
-                printf(" %.2f ", *distanceMatrix);
-                distanceMatrix++;
-            }
-            printf("\n");
-        }
-        #endif
-
-
-        int * ant_matrix = (int *)malloc( sizeof(int) * (instance.width * instance.height));
+        // initializing new matrix for every iteration (it needs to get free at the end)
+        int * ant_matrix = (int *)malloc( sizeof(int) * (numAnts * instance.width));
         int * matrix_pointer = ant_matrix;
-         for (int i = 0; i < instance.width; ++i)
+
+        // asigning all values to zero
+        for (int i = 0; i < numAnts; ++i)
         {
-            for (int j = 0; j < instance.height; ++j)
+            for (int j = 0; j < instance.width; ++j)
             {
                 *matrix_pointer = 0;
                 matrix_pointer++;
             }
         }
 
-        initialize_ant_distribution(ant_matrix, instance.width);
+
+        initialize_ant_distribution(ant_matrix, numAnts, number_of_cities);
 
         int counter = 0;
 
-        for (int i = 0; i < instance.width; ++i)
+        for (int i = 0; i < numAnts; ++i)
         {
-            for (int j = 0; j < instance.height; ++j, counter++)
+            for (int j = 0; j < instance.width; ++j, counter++)
             {
                 printf("%d ",ant_matrix[counter]);
             }
-            printf("\n");
         }
 
-       
-
-
+        /*
         int * ant_travel_current_path;
         int number_of_ants = instance.width;
-        int number_of_cities = instance.width;
         float * the_distance_matrix = instance.matrix;
         float * total_distance_list = (float *)malloc(sizeof(float) * (number_of_cities));
         
@@ -183,43 +170,34 @@ int main(int argc, char const *argv[])
         printf("we can say that Ant that begun on city %d got the smallest traveling path, with %.2f\n",
          ant_that_got_smallest_travel_path, smallest_traveling);
         free(total_distance_list);
-        free(instance.matrix);
+        */
         iterations--;
     }
 
+    free(instance.matrix);
     free(feromone_matrix);
     return 0;
 }
 
 
 
-void initialize_ant_distribution(int * ant_matrix, int number_of_ants)
+void initialize_ant_distribution(int * ant_matrix, int number_of_ants, int number_of_cities)
 {
     int random_city;
     int cont = 0;
-    int * arrayOfConcurrency = (int *) malloc(sizeof(int)* number_of_ants);
-
-    for (int i = 0; i < number_of_ants; ++i)
-    {
-        arrayOfConcurrency[i] = 0;
-    }
     int * begining = ant_matrix;
 
     while(cont < number_of_ants ){
-        while(1){
-            struct timeval t;
-            gettimeofday(&t,NULL);
-            srand(t.tv_sec+t.tv_usec);
-            random_city = rand() % number_of_ants;
-            if (arrayOfConcurrency[random_city]==0)
-            {
-                printf("value = %d\n",random_city);
-                arrayOfConcurrency[random_city]=1;
-                break;
-            }
-        }
 
-        *(begining + (cont * number_of_ants)) = random_city;
+        // Every city counts, even if they repeat themselves in the begining
+        struct timeval t;
+        gettimeofday(&t,NULL);
+        srand(t.tv_sec+t.tv_usec);
+        random_city = rand() % number_of_cities;
+
+        // this should assign each city properly at matrix start space
+        *(begining + (cont * number_of_cities)) = random_city;
+
         cont++;
     }
     
