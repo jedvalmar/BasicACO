@@ -25,128 +25,149 @@ float rand_FloatRange(float a, float b);
 
 int main(int argc, char const *argv[])
 {
-    graph_t instance = get_distance_matrix();
-    float *distanceMatrix = instance.matrix;
+   
+    int alpha, beta, iterations;
+    float * feromone_matrix;
 
-    #ifdef VERBOSE
-    printf("%d\n", instance.width);
-    printf("%d\n", instance.height);
-    for (int i = 0; i < instance.width; ++i)
-    {
-        for (int j = 0; j < instance.height; ++j)
-        {
-            printf(" %.2f ", *distanceMatrix);
-            distanceMatrix++;
-        }
-        printf("\n");
-    }
-    #endif
-
-    int alpha, beta;
     printf("alpha: \n");
     scanf("%d",&alpha);
     printf("beta: \n");
     scanf("%d",&beta);
 
-    int * ant_matrix = (int *)malloc( sizeof(int) * (instance.width * instance.height));
-    int * matrix_pointer = ant_matrix;
-     for (int i = 0; i < instance.width; ++i)
-    {
-        for (int j = 0; j < instance.height; ++j)
+    printf("number of iterations:\n");
+    scanf("%d",&iterations);
+
+    int originalNumber = iterations;
+
+    while(iterations >= 0){
+
+
+    
+        graph_t instance = get_distance_matrix();
+        float *distanceMatrix = instance.matrix;
+
+        #ifdef VERBOSE
+        printf("%d\n", instance.width);
+        printf("%d\n", instance.height);
+        for (int i = 0; i < instance.width; ++i)
         {
-            *matrix_pointer = 0;
-            matrix_pointer++;
+            for (int j = 0; j < instance.height; ++j)
+            {
+                printf(" %.2f ", *distanceMatrix);
+                distanceMatrix++;
+            }
+            printf("\n");
         }
-    }
+        #endif
 
-    initialize_ant_distribution(ant_matrix, instance.width);
 
-    int counter = 0;
-
-    for (int i = 0; i < instance.width; ++i)
-    {
-        for (int j = 0; j < instance.height; ++j, counter++)
+        int * ant_matrix = (int *)malloc( sizeof(int) * (instance.width * instance.height));
+        int * matrix_pointer = ant_matrix;
+         for (int i = 0; i < instance.width; ++i)
         {
-            printf("%d ",ant_matrix[counter]);
+            for (int j = 0; j < instance.height; ++j)
+            {
+                *matrix_pointer = 0;
+                matrix_pointer++;
+            }
         }
-        printf("\n");
-    }
 
-   
+        initialize_ant_distribution(ant_matrix, instance.width);
 
+        int counter = 0;
 
-    int * ant_travel_current_path;
-    int number_of_ants = instance.width;
-    int number_of_cities = instance.width;
-    float * the_distance_matrix = instance.matrix;
-    float * feromone_matrix = (float *)malloc(sizeof(float) * (number_of_ants * number_of_ants));
-    float * total_distance_list = (float *)malloc(sizeof(float) * (number_of_cities));
-    float * pointerToFeromoneMatrix = feromone_matrix;
-
-    initialize_feromone(pointerToFeromoneMatrix, the_distance_matrix, number_of_ants);
-
-    // implementing probability function within a cycle
-
-    float total_traveled_distance = 0;
-    for (int i = 0; i < number_of_ants; ++i)
-    {
-        ant_travel_current_path = &ant_matrix[i*number_of_ants];
-        calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
-        // TODO : measure total distance of brand new ant path
-        total_traveled_distance = calculate_total_distance(ant_travel_current_path, the_distance_matrix, number_of_cities);
-
-        total_distance_list[ant_travel_current_path[0]]= total_traveled_distance;
-        // TODO : update feromone matrix
-        update_feromone(ant_travel_current_path, feromone_matrix, number_of_cities);
-
-    }
-
-
-    printf("Ant colony path matrix\n");
-    int * ant_matrix_iterator = ant_matrix;
-    for (int i = 0; i < number_of_ants; ++i){
-        for (int j = 0; j < number_of_ants; ++j,++ant_matrix_iterator)
-            printf("%d ", *ant_matrix_iterator);
-        printf("\n");
-    }
-    //just to leave a more readble result
-    printf("\n\n");
-
-    printf("\n\nFeromone ultimate matrix\n");
-
-    float * feromone_iterator = feromone_matrix;
-    for (int i = 0; i < number_of_ants; ++i){
-        for (int j = 0; j < number_of_ants; ++j,++feromone_iterator)
-            printf("%.1f ", *feromone_iterator);
-        printf("\n");
-    }
-
-     //just to leave a more readble result
-    printf("\n\n");
-
-
-
-    float smallest_traveling = total_distance_list[0];
-    int ant_that_got_smallest_travel_path = 0;
-    printf("List of total distance of every ant (ant number is equal to the city when it begins to iterate!)\n");
-    for (int i = 0; i < number_of_cities; ++i)
-    {
-        if (smallest_traveling > total_distance_list[i])
+        for (int i = 0; i < instance.width; ++i)
         {
-            smallest_traveling = total_distance_list[i];
-            ant_that_got_smallest_travel_path = i;
+            for (int j = 0; j < instance.height; ++j, counter++)
+            {
+                printf("%d ",ant_matrix[counter]);
+            }
+            printf("\n");
         }
-        printf("Ant %d : %.2f \n",i, total_distance_list[i]);
 
+       
+
+
+        int * ant_travel_current_path;
+        int number_of_ants = instance.width;
+        int number_of_cities = instance.width;
+        float * the_distance_matrix = instance.matrix;
+        float * total_distance_list = (float *)malloc(sizeof(float) * (number_of_cities));
+        
+
+        if(originalNumber == iterations){
+
+            
+            feromone_matrix = (float *)malloc(sizeof(float) * (number_of_ants * number_of_ants));
+            float * pointerToFeromoneMatrix = feromone_matrix;
+            initialize_feromone(pointerToFeromoneMatrix, the_distance_matrix, number_of_ants);
+        }
+
+        // implementing probability function within a cycle
+
+        float total_traveled_distance = 0;
+        for (int i = 0; i < number_of_ants; ++i)
+        {
+            ant_travel_current_path = &ant_matrix[i*number_of_ants];
+            calc_path(ant_travel_current_path, the_distance_matrix, number_of_ants, feromone_matrix, alpha, beta);
+            // TODO : measure total distance of brand new ant path
+            total_traveled_distance = calculate_total_distance(ant_travel_current_path, the_distance_matrix, number_of_cities);
+
+            total_distance_list[ant_travel_current_path[0]]= total_traveled_distance;
+            // TODO : update feromone matrix
+            update_feromone(ant_travel_current_path, feromone_matrix, number_of_cities);
+
+        }
+
+
+        printf("Ant colony path matrix\n");
+        int * ant_matrix_iterator = ant_matrix;
+        for (int i = 0; i < number_of_ants; ++i){
+            for (int j = 0; j < number_of_ants; ++j,++ant_matrix_iterator)
+                printf("%d ", *ant_matrix_iterator);
+            printf("\n");
+        }
+        //just to leave a more readble result
+        printf("\n\n");
+
+        printf("\n\nFeromone ultimate matrix\n");
+
+        float * feromone_iterator = feromone_matrix;
+        for (int i = 0; i < number_of_ants; ++i){
+            for (int j = 0; j < number_of_ants; ++j,++feromone_iterator)
+                printf("%.3f ", *feromone_iterator);
+            printf("\n");
+        }
+
+         //just to leave a more readble result
+        printf("\n\n");
+
+
+
+        float smallest_traveling = total_distance_list[0];
+        int ant_that_got_smallest_travel_path = 0;
+        printf("List of total distance of every ant (ant number is equal to the city when it begins to iterate!)\n");
+        for (int i = 0; i < number_of_cities; ++i)
+        {
+            if (smallest_traveling > total_distance_list[i])
+            {
+                smallest_traveling = total_distance_list[i];
+                ant_that_got_smallest_travel_path = i;
+            }
+            printf("Ant %d : %.2f \n",i, total_distance_list[i]);
+
+        }
+
+        printf("\n");    
+
+        printf("we can say that Ant that begun on city %d got the smallest traveling path, with %.2f\n",
+         ant_that_got_smallest_travel_path, smallest_traveling);
+        free(total_distance_list);
+        free(instance.matrix);
+        iterations--;
     }
-
-    printf("\n");    
-
-    printf("we can say that Ant that begun on city %d got the smallest traveling path, with %.2f\n",
-     ant_that_got_smallest_travel_path, smallest_traveling);
 
     free(feromone_matrix);
-    free(instance.matrix);
     return 0;
 }
 
@@ -439,7 +460,7 @@ void update_feromone(int * path_taken, float * feromone_matrix, int number_of_ci
     float increment;
     float evaporation_factor;
 
-    increment = 0.005;
+    increment = 0.05;
     evaporation_factor = 0.05;
     for (int i = 0; i < (number_of_cities - 1) ; ++i){
         pointA = path_taken[i];
