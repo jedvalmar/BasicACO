@@ -13,6 +13,12 @@ typedef struct {
     int height;
 } graph_t;
 
+typedef struct {
+    int alpha;
+    int beta;
+    int * currentNode;
+} Ant;
+
 graph_t  get_distance_matrix();
 void initialize_feromone(float * incomplete_graph, float * originalGraph, int number_of_ants);
 void calc_path(int * ant_city_travel, float * graph, int number_of_ants, float * feromone_matrix, int alpha, int beta);
@@ -26,7 +32,7 @@ float rand_FloatRange(float a, float b);
 int main(int argc, char const *argv[])
 {
    
-    int alpha, beta, iterations;
+    int alpha, beta, iterations, numAnts;
     float * feromone_matrix;
 
     printf("alpha: \n");
@@ -34,8 +40,22 @@ int main(int argc, char const *argv[])
     printf("beta: \n");
     scanf("%d",&beta);
 
+
     printf("number of iterations:\n");
     scanf("%d",&iterations);
+
+
+    printf("Number of ants:\n");
+    scanf("%d",&numAnts);
+
+    Ant agents[numAnts];
+    for (int i = 0; i < numAnts; ++i)
+    {
+         agents[i].alpha = alpha;
+         agents[i].beta = beta;
+    }
+
+    printf("Some ant has alpha value : %d\n",agents[0].alpha);
 
     int originalNumber = iterations;
 
