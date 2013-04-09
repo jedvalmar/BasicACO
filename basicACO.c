@@ -61,17 +61,18 @@ int main(int argc, char const *argv[])
         initializeCromosome(agents[i]);
     }
 
-    printf("testing agent cromosome...\n");
-    for (int i = 0; i < 8; ++i)
+    printf("testing agents cromosome...\n");
+    for (int i = 0; i < numAnts; ++i)
     {
-        printf("%d ",agents[0].cromosome[i]);
+        for (int j = 0; j < 8; ++j)
+        {
+            printf("%d ",agents[i].cromosome[j]);
+            calculateAntValues(&agents[i]);
+        }
+        printf("a: %.2f  b: %.2f \n", agents[i].alpha, agents[i].beta);
     }
-    printf("testing value of agent[0] cromosome \n");
-    calculateAntValues(&agents[0]);
+    
 
-    printf("values for agent[0] are: a: %.2f b: %.2f \n",agents[0].alpha, agents[0].beta);
-
-/*
     // reading the distance matrix
     graph_t instance = get_distance_matrix();
 
@@ -183,7 +184,6 @@ int main(int argc, char const *argv[])
 
     free(instance.matrix);
     free(feromone_matrix);
-    */
     return 0;
 }
 
@@ -498,8 +498,8 @@ void calculateAntValues(Ant * ant){
 
     for (int i = 0; i < 8 ; ++i)
     {
-        if (ant->cromosome[i])
-            result += pow(i, 2);
+        if (ant->cromosome[i] == 1)
+            result += pow(2, i);
     }
 
     ant->alpha = (result * (alphaTotalRange / 256)) + alphaMin;
