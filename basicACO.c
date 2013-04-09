@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include <sys/time.h>
 
 
@@ -17,6 +18,7 @@ typedef struct {
     int id;
     float alpha;
     float beta;
+    float cost;
     char * cromosome;
 } Ant;
 
@@ -31,6 +33,11 @@ void choose_city(int number_of_cities,int * ant_city_travel, float * path, int *
 float rand_FloatRange(float a, float b);
 void calculateAntValues(Ant * ant);
 void initializeCromosome(Ant ant);
+Ant * createNewPopulation(Ant * ant, int numAnts);
+Ant selectionProcess(Ant * ant, int numAnts, float fitnessFactor);
+void crossoverProccess(Ant * ant, int numAnts);
+void mutation(Ant * ant,int numAnts);
+
 
 int alphaMin, betaMin, alphaMax, betaMax;
 
@@ -61,16 +68,7 @@ int main(int argc, char const *argv[])
         initializeCromosome(agents[i]);
     }
 
-    printf("testing agents cromosome...\n");
-    for (int i = 0; i < numAnts; ++i)
-    {
-        for (int j = 0; j < 8; ++j)
-        {
-            printf("%d ",agents[i].cromosome[j]);
-            calculateAntValues(&agents[i]);
-        }
-        printf("a: %.2f  b: %.2f \n", agents[i].alpha, agents[i].beta);
-    }
+    
     
 
     // reading the distance matrix
@@ -87,6 +85,17 @@ int main(int argc, char const *argv[])
 
     // iteration cycle
     while(iterations > 0){
+
+        printf("testing agents cromosome...\n");
+        for (int i = 0; i < numAnts; ++i)
+        {
+            for (int j = 0; j < 8; ++j)
+            {
+              printf("%d ",agents[i].cromosome[j]);
+              calculateAntValues(&agents[i]);
+            }
+            printf("a: %.2f  b: %.2f \n", agents[i].alpha, agents[i].beta);
+        }
 
         // initializing new matrix for every iteration (it needs to get free at the end)
         int * ant_matrix = (int *)malloc( sizeof(int) * (numAnts * instance.width));
@@ -171,6 +180,7 @@ int main(int argc, char const *argv[])
                 ant_that_got_smallest_travel_path = i;
             }
             printf("Ant %d : %.2f \n",i, total_distance_list[i]);
+            agents[i].cost = total_distance_list[i];
 
         }
 
@@ -180,7 +190,26 @@ int main(int argc, char const *argv[])
          ant_that_got_smallest_travel_path, smallest_traveling);
         free(total_distance_list);
         iterations--;
+
+
+        // genetic algorithm goes here
+        Ant * antPreviousPopulation = agents;
+        Ant * newPopulation = createNewPopulation(&agents[0], numAnts);
+
+
+        for (int i = 0; i < numAnts; ++i)
+        {
+            free(antPreviousPopulation[i].cromosome);
+        }
+
+
+        for (int i = 0; i < numAnts; ++i)
+        {
+            agents[i] = newPopulation[i];
+        }
+
     }
+
 
     free(instance.matrix);
     free(feromone_matrix);
@@ -487,6 +516,58 @@ void update_feromone(int * path_taken, float * feromone_matrix, int number_of_ci
 
 
 
+}
+
+
+Ant * createNewPopulation(Ant * ant, int numAnts){
+
+    Ant  * selectedAnts = (Ant *) malloc(sizeof(Ant) * numAnts);
+    float fitnessFactor = 0;
+    // first sorting them for the selection process
+
+    Ant temp;
+    for (int i = 0; i < numAnts; ++i)
+    {
+        for (int j = i+1; j < numAnts; ++j)
+        {
+            if (ant[j].cost > ant[i].cost)
+            {
+               temp = ant[i];
+               ant[i] = ant[j];
+               ant[j] = temp;
+            }
+        }
+        fitnessFactor += ant[i].cost;
+    }
+    for (int i = 0; i < numAnts; ++i)
+    {
+        Ant selectedAnt = selectionProcess(ant, numAnts, fitnessFactor);
+        memcpy(selectedAnts[i].cromosome, selectedAnt.cromosome, sizeof(char) * 8);
+    }
+    printf("memoria copiada!\n");
+    //crossoverProccess(&selectedAnts[0], numAnts);
+    //mutation(&selectedAnts[0], numAnts);
+
+    return selectedAnts;
+}
+
+Ant selectionProcess(Ant * ant, int numAnts, float fitnessFactor){
+    float acumulator = 0;
+
+    float probability = rand_FloatRange(0,1);
+
+    int i = 0;
+    
+    for (i = 0; i < numAnts; ++i)
+    {
+        acumulator += ant[i].cost / fitnessFactor;
+        if (acumulator > probability)
+        {
+            return ant[i];
+        }
+    }
+
+    return ant[i];
 }
 
 
