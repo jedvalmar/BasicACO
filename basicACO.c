@@ -196,17 +196,9 @@ int main(int argc, char const *argv[])
         Ant * antPreviousPopulation = agents;
         Ant * newPopulation = createNewPopulation(&agents[0], numAnts);
 
+        memcpy(agents, newPopulation, sizeof(Ant) * 8);
 
-        for (int i = 0; i < numAnts; ++i)
-        {
-            free(antPreviousPopulation[i].cromosome);
-        }
-
-
-        for (int i = 0; i < numAnts; ++i)
-        {
-            agents[i] = newPopulation[i];
-        }
+        free(newPopulation);
 
     }
 
@@ -542,9 +534,13 @@ Ant * createNewPopulation(Ant * ant, int numAnts){
     for (int i = 0; i < numAnts; ++i)
     {
         Ant selectedAnt = selectionProcess(ant, numAnts, fitnessFactor);
-        memcpy(selectedAnts[i].cromosome, selectedAnt.cromosome, sizeof(char) * 8);
+        memcpy(&selectedAnts[i], &selectedAnt, sizeof(Ant));
     }
-    printf("memoria copiada!\n");
+
+    // TODO implement this methods
+
+
+    
     //crossoverProccess(&selectedAnts[0], numAnts);
     //mutation(&selectedAnts[0], numAnts);
 
