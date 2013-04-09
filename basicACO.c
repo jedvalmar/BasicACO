@@ -15,8 +15,9 @@ typedef struct {
 
 typedef struct {
     int id;
-    int alpha;
-    int beta;
+    float alpha;
+    float beta;
+    char * cromosome;
 } Ant;
 
 graph_t  get_distance_matrix();
@@ -28,17 +29,21 @@ float calculate_total_distance(int * a_path, float * distanceMatrix, int number_
 void initialize_ant_distribution(int * ant_matrix, int number_of_ants, int number_of_cities);
 void choose_city(int number_of_cities,int * ant_city_travel, float * path, int * visitedCities, float * feromone_path, Ant ant, int nextCity);
 float rand_FloatRange(float a, float b);
+void calculateAntValues(Ant * ant);
+void initializeCromosome(Ant ant);
+
+int alphaMin, betaMin, alphaMax, betaMax;
 
 int main(int argc, char const *argv[])
 {
    
-    int alpha, beta, iterations, numAnts;
+    int iterations, numAnts;
     float * feromone_matrix;
 
-    printf("alpha: \n");
-    scanf("%d",&alpha);
+    printf("alpha range: \n");
+    scanf("%d %d",&alphaMin, &alphaMax);
     printf("beta: \n");
-    scanf("%d",&beta);
+    scanf("%d %d",&betaMin, &betaMax);
 
 
     printf("number of iterations:\n");
@@ -52,10 +57,21 @@ int main(int argc, char const *argv[])
     for (int i = 0; i < numAnts; ++i)
     {
         agents[i].id = i;
-        agents[i].alpha = alpha;
-        agents[i].beta = beta;
+        agents[i].cromosome = (char *) malloc( sizeof(char) * 8);
+        initializeCromosome(agents[i]);
     }
 
+    printf("testing agent cromosome...\n");
+    for (int i = 0; i < 8; ++i)
+    {
+        printf("%d ",agents[0].cromosome[i]);
+    }
+    printf("testing value of agent[0] cromosome \n");
+    calculateAntValues(&agents[0]);
+
+    printf("values for agent[0] are: a: %.2f b: %.2f \n",agents[0].alpha, agents[0].beta);
+
+/*
     // reading the distance matrix
     graph_t instance = get_distance_matrix();
 
@@ -167,6 +183,7 @@ int main(int argc, char const *argv[])
 
     free(instance.matrix);
     free(feromone_matrix);
+    */
     return 0;
 }
 
@@ -192,6 +209,15 @@ void initialize_ant_distribution(int * ant_matrix, int number_of_ants, int numbe
         cont++;
     }
     
+}
+
+void initializeCromosome(Ant ant){
+    int gen = 0;
+    for (int i = 0; i < 8; ++i)
+    {
+        gen = (rand_FloatRange(0,1) > 0.5) ? 1 : 0; 
+        ant.cromosome[i] = gen;
+    }
 }
 
  graph_t  get_distance_matrix()
@@ -462,4 +488,23 @@ void update_feromone(int * path_taken, float * feromone_matrix, int number_of_ci
 
 
 }
+
+
+void calculateAntValues(Ant * ant){
+
+    float result = 0;
+    float alphaTotalRange = (alphaMax - alphaMin); 
+    float betaTotalRange = (betaMax - betaMin);
+
+    for (int i = 0; i < 8 ; ++i)
+    {
+        if (ant->cromosome[i])
+            result += pow(i, 2);
+    }
+
+    ant->alpha = (result * (alphaTotalRange / 256)) + alphaMin;
+    ant->beta = (result * (betaTotalRange / 256)) + betaMin; 
+
+}
+
 
